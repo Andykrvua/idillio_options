@@ -74,9 +74,6 @@ function sort(nodeList) {
 //missing items
 function missingItems(items) {
   let arrUnicWood = countColRow(items, 'wood');
-  //let arrUnicSize = countColRow(items, 'size');
-  console.log(arrUnicWood);
-  // console.log(arrUnicSize);
 
   let arr = [];
   for (var item of items) {
@@ -86,22 +83,23 @@ function missingItems(items) {
 
   let arrUnicSizePos = [];
 
-  for (var i = 0; i <= arrUnicSize.length; i++) {
+  for (var i = 0; i < arrUnicWood; i++) {
     for (var item of items) {
-      // console.log('итерация' + arrUnicSize[i]);
       if (arrUnicSize[i] === item.dataset.size) {
-        // console.log('итерация' + arrUnicSizePos);
         arrUnicSizePos.push(item.dataset.wood);
-        if (arrUnicSizePos.length === arrUnicSize.length) {
+
+        if (arrUnicSizePos.length === arrUnicWood) {
           break;
         }
+      } else {
+        arrUnicSizePos = [];
       }
     }
-    if (arrUnicSizePos.length === arrUnicSize.length) {
+    if (arrUnicSizePos.length === arrUnicWood) {
       break;
     }
   }
-  console.log(arrUnicSizePos);
+  console.log('unic: ' + arrUnicSizePos);
 
   // arrUnicWood = Array.from(new Set(arrUnicWood));
   // arrUnicSize = Array.from(new Set(arrUnicSize));
