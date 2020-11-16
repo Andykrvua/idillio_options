@@ -9,35 +9,22 @@ function sizeBlockf() {
     let str = item.children[1].textContent;
     let regexp = /{(.*?)}/g;
     let result = str.match(regexp);
-    // console.log(result);
 
     if (result) {
-      //set data for size and wood
+      //set data attr for size and wood
       item.setAttribute('data-size', result[0].slice(1, -1));
       item.setAttribute('data-wood', result[1].slice(1, -1));
     }
 
-    //label text only price
+    //remove label helper text only price
     if (item.children[1].innerHTML.split('=')[1]) {
       item.children[1].innerHTML = item.children[1].innerHTML.split('=')[1];
     } else {
       item.children[1].innerHTML = 'error';
     }
   }
-  //end for
 
-  //width one elems
-  let width = sizeBlock.offsetWidth;
-  console.log('Ширина = ' + width);
-  let elemWidth = Math.floor(width / countColRow(items, 'wood')) - 1;
-
-  //set width all elems
-  for (var item of items) {
-    item.style.width = elemWidth + 'px';
-  }
-  // sort(items);
-
-  // add row size
+  // add row of size title
   let arr = [];
   for (var item of items) {
     arr.push(item.dataset.size);
@@ -58,21 +45,66 @@ function sizeBlockf() {
   addWoodDataCount(items);
 
   insertMissingElems(items);
+
+  sortWood();
+
+  addRowTableTitle();
+
+  resizeSizeBlockOpt();
+}
+
+// add table title of unic wood name
+function addRowTableTitle() {
+  let sizeBlock = document.querySelector('[option$="15"]');
+  let items = sizeBlock.querySelectorAll('.product-page__radio-box');
+
+  let titleItem = document.createElement('DIV');
+  titleItem.classList.add(
+    'product-page__radio-box',
+    'product-page__table-title',
+    'endrow'
+  );
+  titleItem.style.width = '100%';
+  let parent = items[0].parentNode;
+  parent.insertBefore(titleItem, items[0]);
+
+  let arr = [];
+  for (var item of items) {
+    if (item.dataset.wood != undefined) {
+      arr.push(item.dataset.wood);
+    }
+  }
+  arr = Array.from(new Set(arr));
+
+  // fix padding last right el
+  for (var item of items) {
+    if (item.dataset.pos == arr.length) {
+      item.style.paddingRight = '0';
+    }
+  }
+
+  for (var c = 0; c < arr.length; c++) {
+    let newItem = document.createElement('DIV');
+    newItem.classList.add('product-page__radio-box');
+    let textnode = document.createTextNode(arr[c]);
+    newItem.appendChild(textnode);
+    titleItem.insertBefore(newItem, null);
+  }
 }
 
 function insertMissingElems(items) {
   let newSizeBlock = document.querySelector('[option$="15"]');
   let newItems = newSizeBlock.querySelectorAll('.product-page__radio-box');
+
   let missingArr = checkMissingElems(items);
-  console.log(missingArr);
   let unicWood = countColRow(items, 'wood');
+
   for (var i = 0; i < missingArr.length; i++) {
     if (missingArr[i][1] != unicWood) {
       for (var item of newItems) {
-        // console.log(item);
         if (item.dataset.woodrow == missingArr[i][0]) {
           let missing = unicWood - missingArr[i][1];
-          console.log('в размере ' + missingArr[i][0] + ' ' + missing + 'эл');
+
           for (var t = 0; t < missing; t++) {
             let parentDiv = item.parentNode;
             parentDiv.insertBefore(
@@ -91,9 +123,7 @@ function insertMissingElems(items) {
 function addWoodCountPlaceholder(missingArr, unicWood) {
   let newSizeBlock = document.querySelector('[option$="15"]');
   let newItems = newSizeBlock.querySelectorAll('.product-page__radio-box');
-  // return arr all size ["1200х800х750", 6]
-  console.log(missingArr);
-  console.log(unicWood);
+
   arr = [];
   for (var i = 0; i < missingArr.length; i++) {
     for (var item of newItems) {
@@ -105,20 +135,15 @@ function addWoodCountPlaceholder(missingArr, unicWood) {
         if (missing) {
           if (item.dataset.pos != 999) {
             arr.push(item.dataset.pos);
-            console.log('arr1 = ' + arr);
           } else {
             for (var g = 1; g <= unicWood; g++) {
               if (arr.indexOf(String(g)) == -1) {
                 item.setAttribute('data-pos', g);
                 arr.push(String(g));
-                console.log('arr2 = ' + arr);
-                debugger;
                 break;
               }
-              // console.log('arr2 = ' + arr);
             }
           }
-          console.log('miss = ' + missing + ' ' + item.dataset.size);
         }
       }
     }
@@ -129,35 +154,100 @@ function addWoodCountPlaceholder(missingArr, unicWood) {
 function countColRow(items, data) {
   let arr = [];
   for (var item of items) {
-    data === 'size' ? arr.push(item.dataset.size) : arr.push(item.dataset.wood);
+    if (!item.classList.contains('endrow')) {
+      data === 'size'
+        ? arr.push(item.dataset.size)
+        : arr.push(item.dataset.wood);
+    }
   }
   return Array.from(new Set(arr)).length;
 }
 
-//sort
-// function sort(nodeList) {
-//   let sizeBlock = document.querySelector('[option$="15"]');
-//   var itemsArray = [];
-//   for (var i = 0; i < nodeList.length; i++) {
-//     itemsArray.push(nodeList[i]);
-//   }
-//   console.dir('NodeList' + itemsArray);
-//   itemsArray
-//     .sort(function (nodeA, nodeB) {
-//       var textA = nodeA.dataset.size;
-//       var textB = nodeB.dataset.size;
-//       var numberA = parseInt(textA);
-//       var numberB = parseInt(textB);
-//       if (numberA < numberB) return -1;
-//       if (numberA > numberB) return 1;
-//       return 0;
-//     })
-//     .forEach(function (node) {
-//       sizeBlock.appendChild(node);
-//     });
-// }
+//sort el of data-wood one size
+function sortWood() {
+  let sizeBlockSort = document.querySelector('[option$="15"]');
+  let itemsSort = sizeBlockSort.querySelectorAll('.product-page__radio-box');
 
-// add iterate data attr wood
+  let arr = [];
+  for (var item of itemsSort) {
+    if (!item.classList.contains('endrow')) {
+      arr.push(item.dataset.size);
+    }
+  }
+  arr = Array.from(new Set(arr));
+
+  let elems;
+  let selectorName;
+  for (var b = 0; b < arr.length; b++) {
+    selectorName =
+      '.product-page__radio-box[data-size="' + String(arr[b]) + '"]';
+    elems = document.querySelectorAll(selectorName);
+
+    sortWoodHelper(elems);
+  }
+  fixSizeNameRow();
+}
+
+// fix row of size title after sort data-wood items
+function fixSizeNameRow() {
+  let parent = document.querySelector('[option$="15"] > div[id|="input"]');
+  let delNodes = parent.querySelectorAll('.endrow');
+
+  for (node of delNodes) {
+    parent.removeChild(node);
+  }
+
+  let sizeBlock = document.querySelector('[option$="15"]');
+  let items = sizeBlock.querySelectorAll('.product-page__radio-box');
+
+  let arr = [];
+  for (var item of items) {
+    if (!item.classList.contains('endrow')) {
+      arr.push(item.dataset.size);
+    }
+  }
+  arrUnicSize = Array.from(new Set(arr));
+
+  let arrUnicSizeCount = 0;
+  for (var item of items) {
+    if (item.dataset.size == arrUnicSize[arrUnicSizeCount]) {
+    } else {
+      let parentDiv = item.parentNode;
+      parentDiv.insertBefore(createElem(arrUnicSize[arrUnicSizeCount]), item);
+      arrUnicSizeCount++;
+    }
+  }
+  let parentDiv = sizeBlock.querySelector('div[id|="input"]');
+  parentDiv.insertBefore(createElem(arrUnicSize[arrUnicSize.length - 1]), null);
+}
+
+// func of sort single data-wood block
+function sortWoodHelper(items) {
+  let sizeBlockSort = document.querySelector(
+    '[option$="15"] > div[id|="input"]'
+  );
+
+  var itemsArray = [];
+  for (var i = 0; i < items.length; i++) {
+    itemsArray.push(items[i]);
+  }
+
+  itemsArray
+    .sort(function (nodeA, nodeB) {
+      var textA = nodeA.dataset.pos;
+      var textB = nodeB.dataset.pos;
+      var numberA = parseInt(textA);
+      var numberB = parseInt(textB);
+      if (numberA < numberB) return -1;
+      if (numberA > numberB) return 1;
+      return 0;
+    })
+    .forEach(function (node) {
+      sizeBlockSort.appendChild(node);
+    });
+}
+
+// add iterate data-pos attr wood
 function addWoodDataCount(items) {
   let arrUnicWood = countColRow(items, 'wood');
 
@@ -165,11 +255,9 @@ function addWoodDataCount(items) {
   for (var item of items) {
     arr.push(item.dataset.size);
   }
-
   arrUnicSize = Array.from(new Set(arr));
 
   let arrUnicSizePos = [];
-
   for (var i = 0; i < arrUnicWood; i++) {
     for (var item of items) {
       if (arrUnicSize[i] === item.dataset.size) {
@@ -186,7 +274,6 @@ function addWoodDataCount(items) {
       break;
     }
   }
-  console.log('unic: ' + arrUnicSizePos);
 
   // set attr data-pos
   for (var i = 0; i < arrUnicSizePos.length; i++) {
@@ -198,6 +285,7 @@ function addWoodDataCount(items) {
   }
 }
 
+// return quantity of missing items
 function checkMissingElems(items) {
   let arr = [];
   let count = 0;
@@ -228,23 +316,34 @@ function createElem(
   if (dataPos && size) {
     newItem.setAttribute('data-pos', dataPos);
     newItem.setAttribute('data-size', size);
+  } else {
+    newItem.classList.add('endrow');
   }
 
   return newItem;
 }
 
-//window resize
+//window event resize
 function resizeSizeBlockOpt() {
   let sizeBlock = document.querySelector('[option$="15"]');
-  let items = sizeBlock.querySelectorAll('.product-page__radio-box');
+  let items = sizeBlock.querySelectorAll(
+    '.product-page__radio-box:not(.endrow)'
+  );
 
-  let width = sizeBlock.offsetWidth;
-  let elemWidth = Math.floor(width / 6) - 1;
+  let arr = [];
+  for (var item of items) {
+    if (item.dataset.wood != undefined) {
+      arr.push(item.dataset.wood);
+    }
+  }
+  arr = Array.from(new Set(arr));
 
+  let width = sizeBlock.offsetWidth - 1;
+  let elemWidth = Math.floor(width / arr.length);
   for (var item of items) {
     item.style.width = elemWidth + 'px';
   }
 }
 
 //document.addEventListener("DOMContentLoaded", sizeBlockf);
-//window.addEventListener("resize", resizeSizeBlockOpt);
+window.addEventListener('resize', resizeSizeBlockOpt);

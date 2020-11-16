@@ -110,3 +110,7 @@ input[type='radio'] + label:after {
   left: 0;
   z-index: -1;
 }
+
+.product-page__input-box .endrow {
+  padding-right: 0;
+}
