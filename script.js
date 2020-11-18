@@ -42,19 +42,19 @@ function sizeBlockf() {
   let parentDiv = sizeBlock.querySelector('div[id|="input"]');
   parentDiv.insertBefore(createElem(arrUnicSize[arrUnicSize.length - 1]), null);
 
-  addWoodDataCount(items);
+  let unicWoodPosSort = addWoodDataCount(items);
 
   insertMissingElems(items);
 
   sortWood();
 
-  addRowTableTitle();
+  addRowTableTitle(unicWoodPosSort);
 
   resizeSizeBlockOpt();
 }
 
 // add table title of unic wood name
-function addRowTableTitle() {
+function addRowTableTitle(unicWoodPosSort) {
   let sizeBlock = document.querySelector('[option$="15"]');
   let items = sizeBlock.querySelectorAll('.product-page__radio-box');
 
@@ -83,10 +83,10 @@ function addRowTableTitle() {
     }
   }
 
-  for (var c = 0; c < arr.length; c++) {
+  for (var c = 0; c < unicWoodPosSort.length; c++) {
     let newItem = document.createElement('DIV');
     newItem.classList.add('product-page__radio-box');
-    let textnode = document.createTextNode(arr[c]);
+    let textnode = document.createTextNode(unicWoodPosSort[c]);
     newItem.appendChild(textnode);
     titleItem.insertBefore(newItem, null);
   }
@@ -283,6 +283,7 @@ function addWoodDataCount(items) {
       }
     }
   }
+  return arrUnicSizePos;
 }
 
 // return quantity of missing items
@@ -309,7 +310,12 @@ function createElem(
 ) {
   let newItem = document.createElement('DIV');
   newItem.classList.add('product-page__radio-box');
-  let textnode = document.createTextNode(name);
+  let textnode;
+  if (name === 'placeholder') {
+    textnode = document.createTextNode('');
+  } else {
+    textnode = document.createTextNode(name);
+  }
   newItem.appendChild(textnode);
   newItem.setAttribute('data-woodrow', name);
   newItem.style.width = width;
